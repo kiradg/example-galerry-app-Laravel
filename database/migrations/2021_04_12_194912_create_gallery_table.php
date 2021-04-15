@@ -16,10 +16,9 @@ class CreateGalleryTable extends Migration
         Schema::create('gallery', function (Blueprint $table) {
             $table->id();
             $table->longText('image');
-            //$table->unsignedBigInteger('product_id');
             $table->foreignId('products_id')->constrained();
             $table->timestamps();
-            //$table->foreign('product_id')->references('id')->on('product');
+           
         });
     }
 
