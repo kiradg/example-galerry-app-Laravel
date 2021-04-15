@@ -20,11 +20,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//Route::apiResource('gallery', GalleryController::class);
-
-Route::apiResource('products', ProductsController::class);
-
-
 Route::apiResources([
     'products' => ProductsController::class,
     'products.gallery' => GalleryController::class,
