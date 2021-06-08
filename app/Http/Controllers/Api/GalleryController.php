@@ -47,6 +47,7 @@ class GalleryController extends Controller
         $this->validate_parents($product);
 
         $input = $request->all();
+
         $validator = Validator::make($input, [
             'image' => 'required'
         ]);
@@ -55,10 +56,13 @@ class GalleryController extends Controller
             return response()->json(["error" => $validator->errors()], 400);
         }
 
-        $input['image'] = $this->save_image(  $input['image'] );
-        $input['products_id'] = $product->id;
-        $gallery = Gallery::create($input);
-        $gallery->image = $this->get_url_image($input['image']);
+        if (!$input['image']->isValid()) {
+            return response()->json(["Error" => true, "message" => "there was a problem uploading the image."], 500);
+        }
+
+        $path =  $input['image']->store('gallery', 'public');
+        $gallery = Gallery::create( [ "products_id" => $product->id, "image" => $path ] );
+        $gallery->image = $this->get_url_image($path);
         return response()->json($gallery, 201);
     }
 
@@ -122,20 +126,6 @@ class GalleryController extends Controller
         $gallery->delete();
 
         return response()->json(null, 204);
-    }
-
-    private function save_image($image_encode)
-    {
-        $folderPath = "gallery/";
-        $image_parts = explode(";base64,", $image_encode);
-        $image_type_aux = explode("image/", $image_parts[0]);
-        $image_type = $image_type_aux[1];
-        $image_decode = base64_decode($image_parts[1]);
-        $file = $folderPath . uniqid() . '.'.$image_type;
-        
-        Storage::disk('public')->put( $file , $image_decode);
-
-        return $file;
     }
 
     private function get_url_image($path){
